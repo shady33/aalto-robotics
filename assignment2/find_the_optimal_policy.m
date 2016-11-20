@@ -11,22 +11,22 @@ function [optimal_policy]=find_the_optimal_policy(discount, livingReward, noise 
     south = 4;
     
     grid = [0 0 0 0 0; 0 -100 0 0 0;0 -100 +1 -100 +10; 0 0 0 0 0; -10 -10 -10 -10 -10];
+    grid_old = [0 0 0 0 0; 0 -100 0 0 0;0 -100 +1 -100 +10; 0 0 0 0 0; -10 -10 -10 -10 -10];
     direction = zeros(5,5);
     
     steps = [4 5; 4 4; 4 3; 4 2; 2 5; 2 4; 1 5; 1 4; 2 3; 1 3; 1 2; 1 1; 2 1; 3 1; 4 1];
+    comp = ones(5);
     
-    for l = 1:1
-    for j = 1:15
-        [grid(steps(j,1),steps(j,2)) , direction(steps(j,1),steps(j,2)) ] = v_iter(grid,steps(j,1),steps(j,2),discount,livingReward,noise);
+    while 1
+        for j = 1:15
+            [grid(steps(j,1),steps(j,2)) , direction(steps(j,1),steps(j,2)) ] = v_iter(grid,steps(j,1),steps(j,2),discount,livingReward,noise);
+        end
+        if isequal(((grid - grid_old) < 0.01),comp)
+          break;
+        end
+            grid_old = grid;
     end
-    end
-    grid
-    direction
-%     [grid(4,4) , direction(4,4) ] = v_iter(grid,4,4,discount,livingReward,noise)
-%     [grid(4,3) , direction(4,3) ] = v_iter(grid,4,3,discount,livingReward,noise)
-%     [grid(4,2) , direction(4,2) ] = v_iter(grid,4,2,discount,livingReward,noise)
-%     
-%     [grid(2,5) , direction(2,5) ] = v_iter(grid,2,5,discount,livingReward,noise)
+    optimal_policy = direction;
 end
 
 function [max_value , direction] = v_iter(grid,x,y,discount, livingReward, noise)
@@ -71,7 +71,6 @@ function [max_value , direction] = v_iter(grid,x,y,discount, livingReward, noise
     direction_north = ((1 - noise) * (livingReward + discount * (north_local))) ...
     + ((noise / 2) * (livingReward + discount * (east_local))) ...
     + ((noise / 2) * (livingReward + discount * (west_local)));
-    
 
     direction_south = ((1 - noise) * (livingReward + discount * (south_local))) ...
     + ((noise / 2) * (livingReward + discount * (east_local))) ...
@@ -90,28 +89,3 @@ function [max_value , direction] = v_iter(grid,x,y,discount, livingReward, noise
     [max_value , direction ] = max([direction_east direction_north direction_west direction_south]);
 end
 
-function valid = valid_side(x,y,direction)
-    global east;
-    global north;
-    global west;
-    global south;
-    valid = false;
-    switch(direction)
-        case east
-            if( y + 1 ) < 6
-                valid = true;
-            end
-        case north
-            if( x - 1 ) > 0
-                valid = true;
-            end
-        case west
-            if( y - 1 ) > 0
-                valid = true;
-            end            
-        case south
-             if( x + 1 ) < 6
-                valid = true;
-            end           
-    end
-end
