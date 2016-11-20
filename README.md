@@ -1,5 +1,3 @@
-# aalto-robotics
-
 Aalto Robotics Course
 =====================
 
